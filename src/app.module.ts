@@ -7,6 +7,7 @@ import { User } from './comments/entities/user.entity';
 import { Role } from './comments/entities/role.entity';
 import { Comments } from './comments/entities/comments.entity';
 import { AuthMiddleware } from './comments/business/auth.middleware';
+import { Connection } from 'typeorm';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { AuthMiddleware } from './comments/business/auth.middleware';
   providers: [],
 })
 export class AppModule implements NestModule {
+  constructor(private connection: Connection) {}
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AuthMiddleware)

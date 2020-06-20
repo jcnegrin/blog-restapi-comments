@@ -1,4 +1,4 @@
-import { Controller, Get, Headers, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Headers, BadRequestException, Param, Post } from '@nestjs/common';
 import { UserData } from './business/UserData.decorator';
 import { CreateCommentDto } from './dto/CreateCommentDto';
 import { CreateComment } from './business/CreateComment.decorator';
@@ -11,13 +11,25 @@ export class CommentsController {
 
     constructor(private commentsService: CommentsService) {}
 
-    @Get()
-    async getPostComments(@Headers('authorization') bearer_token: string, @CreateComment() comment: CreateCommentDto): Promise<Comments[]> {
-        if (!comment.userId || !comment.postId || !comment.content) {
-            throw new BadRequestException('Invalid comment data received');
+    @Get(':postId')
+    async getPostComments(@Param('postId') id: string): Promise<Comments[]> {
+        if (!id) {
+            throw new BadRequestException('Invalid post ID');
         }
+        const comments: Comments[] = await this.commentsService.getPostComments(id);
+        return comments;
+    }
 
-        const user: UserDto = await this.commentsService.getUserData(bearer_token);
-        return ;
+
+    @Post()
+    createComment(@CreateComment() comment: CreateCommentDto): Promise<Comments>{
+        if (!comment.postId) 
+            throw new BadRequestException('Invalid Post Id');
+        if (!comment.userId) 
+            throw new BadRequestException('Invalid User Id');
+        if (!comment.content)
+            throw new BadRequestException('Invalid comment content provided');
+
+        return this.commentsService.createComment(comment);
     }
 }
